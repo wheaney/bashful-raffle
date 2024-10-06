@@ -3,6 +3,8 @@ Bash script for performing a fair raffle.
 
 ## Usage
 
+Check out the git repo, or `wget https://raw.githubusercontent.com/wheaney/bashful-raffle/refs/heads/main/raffle.sh && chmod +x raffle.sh`
+
 ### Interactive
 
 Just run with `raffle.sh` and follow the prompts.
