@@ -22,17 +22,18 @@ if [ "$numWinners" -gt "$totalEntrants" ]; then
     exit 1
 fi
 
-# Look for entrants with multiple entries and expand the list
+# Look for entrants with multiple entries and expand the list, remove spaces from each entry
 declare -a entries=()
-for entry in "${entrants[@]}"; do
-    if [[ $entry =~ ^(.*)\ ([0-9]+)$ ]]; then
-        text=${BASH_REMATCH[1]}
+for entrant in "${entrants[@]}"; do
+    if [[ $entrant =~ ^(.*)\ ([0-9]+)$ ]]; then
+        text=${BASH_REMATCH[1]// /}
+
         count=${BASH_REMATCH[2]}
         for ((i = 0; i < count; i++)); do
             entries+=("$text")
         done
     else
-        entries+=("$entry")
+        entries+=("${entrant// /}")
     fi
 done
 
@@ -41,6 +42,12 @@ echo -e "\nPicking $numWinners winners from $totalEntrants entrants and ${#entri
 
 # Use shuf command with /dev/urandom as the random source, keep the entire list so we can remove duplicates
 winners=$(printf '%s\n' "${entries[@]}" | shuf --random-source=/dev/urandom)
+
+# write winners to a temp file, sha256sum the file, and print the hash
+temp_file=$(mktemp /tmp/raffle.XXXXXXXXXX.txt)
+echo "$winners" > "$temp_file"
+hash=$(sha256sum "$temp_file")
+echo -e "\nWinners file hash:\n\t$hash"
 
 # Iterate through the winners list collecting winners, skipping duplicates, until we've gotten numWinners
 declare -a finalWinners=()
