@@ -10,21 +10,21 @@ if [[ -t 0 ]]; then
     echo "When finished, press Ctrl+D on a new line to end input."
 fi
 
-# Read the list of entries into an array
-mapfile -t original_entries
+# Read the list of entrants into an array
+mapfile -t entrants
 
-# Get the total number of entries
-totalEntries=${#original_entries[@]}
+# Get the total number of entrants
+totalEntrants=${#entrants[@]}
 
-# Check if we have enough entries
-if [ "$numWinners" -gt "$totalEntries" ]; then
-    echo "Error: Not enough entries to select $numWinners winners." >&2
+# Check if we have enough entrants
+if [ "$numWinners" -gt "$totalEntrants" ]; then
+    echo "Error: Not enough entrants to select $numWinners winners." >&2
     exit 1
 fi
 
 # Look for entrants with multiple entries and expand the list
 declare -a entries=()
-for entry in "${original_entries[@]}"; do
+for entry in "${entrants[@]}"; do
     if [[ $entry =~ ^(.*)\ ([0-9]+)$ ]]; then
         text=${BASH_REMATCH[1]}
         count=${BASH_REMATCH[2]}
@@ -35,6 +35,9 @@ for entry in "${original_entries[@]}"; do
         entries+=("$entry")
     fi
 done
+
+# Print the number of entrants and entries as a sanity check
+echo -e "\nPicking $numWinners winners from $totalEntrants entrants and ${#entries[@]} total entries."
 
 # Use shuf command with /dev/urandom as the random source, keep the entire list so we can remove duplicates
 winners=$(printf '%s\n' "${entries[@]}" | shuf --random-source=/dev/urandom)
@@ -51,5 +54,5 @@ for winner in $winners; do
 done
 
 # Print the winners
-echo -e "\n\nThe winners are:"
-printf '%s\n' "${finalWinners[@]}"
+echo -e "\nThe winners are:"
+printf '\t%s\n' "${finalWinners[@]}"
